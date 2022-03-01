@@ -1,45 +1,57 @@
-import React, { memo, Suspense, useEffect } from 'react';
+import React, { memo, Suspense, useEffect } from "react";
 
 // routes config
-import routes from '../../routes';
+import routes from "../../routes";
 
-import { Route, Switch, Redirect, useLocation, useRouteMatch, useHistory } from 'react-router-dom';
-import {useMemoSelector} from "use-redux-state-hook";
-import {NotificationContainer} from 'react-notifications';
-import Http from '../../func/Http';
-import {Loading} from '../../components/Base/Anim'
+import {
+  Route,
+  Switch,
+  Redirect,
+  useLocation,
+  useRouteMatch,
+  useHistory,
+} from "react-router-dom";
+import { useMemoSelector } from "use-redux-states";
+import { NotificationContainer } from "react-notifications";
+import Http from "../../func/Http";
+import { Loading } from "../../components/Base/Anim";
 
 // Pages
-const Home = React.lazy(() => import('../../views/Home'));
-const Auth = React.lazy(() => import('../../views/Auth'));
+const Home = React.lazy(() => import("../../views/Home"));
+const Auth = React.lazy(() => import("../../views/Auth"));
 
-const Page404 = React.lazy(() => import('../../views/Pages/Page404'));
-const Page500 = React.lazy(() => import('../../views/Pages/Page500'));
+const Page404 = React.lazy(() => import("../../views/Pages/Page404"));
+const Page500 = React.lazy(() => import("../../views/Pages/Page500"));
 
-const RestrictedRoute = memo(({component: Component, location, token, ...rest}) => (
-  <Route
-    {...rest}
-    render={props =>
-      token
-      ? <Component {...props} />
-      : <Redirect
-        to={{
-          pathname: '/auth',
-          state: {from: location}
-        }}
-    />}
-  />
-))
+const RestrictedRoute = memo(
+  ({ component: Component, location, token, ...rest }) => (
+    <Route
+      {...rest}
+      render={(props) =>
+        token ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/auth",
+              state: { from: location },
+            }}
+          />
+        )
+      }
+    />
+  )
+);
 
 const AuthRoutes = memo(() => {
-  const {token} = useMemoSelector(({auth}) => auth);
+  const { token } = useMemoSelector(({ auth }) => auth);
 
   const location = useLocation();
   const history = useHistory();
 
   useEffect(() => {
     if (!token) {
-      history.push('/auth');
+      history.push("/auth");
     }
   }, [token, location, history]);
 
@@ -53,47 +65,73 @@ const AuthRoutes = memo(() => {
               path={route.path}
               exact={route.exact}
               name={route.name}
-              render={props => (
-                <route.component {...props} />
-              )} />
-          ) : (null);
+              render={(props) => <route.component {...props} />}
+            />
+          ) : null;
         })}
         <Redirect from={location.path} to="/404" />
       </Switch>
     </Suspense>
   );
-})
+});
 
 const Routes = memo(() => {
-  const {token} = useMemoSelector(({auth}) => auth);
+  const { token } = useMemoSelector(({ auth }) => auth);
 
   const location = useLocation();
   const history = useHistory();
   const match = useRouteMatch();
 
   useEffect(() => {
-    Http.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  }, [token])
+    Http.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }, [token]);
 
   useEffect(() => {
-    if (['/auth'].includes(location.pathname)) {
+    if (["/auth"].includes(location.pathname)) {
       if (token) {
-        history.push('/dashboard');
+        history.push("/dashboard");
       }
     }
   }, [token, location, history]);
 
-  return (<>
-    <NotificationContainer/>
-    <Switch>
-      <Route exact path="/" name="Home" render={props => <Home {...props}/>} />
-      <Route exact path="/auth" name="Auth" render={props => <Auth {...props}/>} />
-      <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
-      <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} />
-      <RestrictedRoute name="Home" path={`${match.url}`} token={token} location={location}
-                       component={AuthRoutes} />
-    </Switch>
-  </>)
-})
+  return (
+    <>
+      <NotificationContainer />
+      <Switch>
+        <Route
+          exact
+          path="/"
+          name="Home"
+          render={(props) => <Home {...props} />}
+        />
+        <Route
+          exact
+          path="/auth"
+          name="Auth"
+          render={(props) => <Auth {...props} />}
+        />
+        <Route
+          exact
+          path="/404"
+          name="Page 404"
+          render={(props) => <Page404 {...props} />}
+        />
+        <Route
+          exact
+          path="/500"
+          name="Page 500"
+          render={(props) => <Page500 {...props} />}
+        />
+        <RestrictedRoute
+          name="Home"
+          path={`${match.url}`}
+          token={token}
+          location={location}
+          component={AuthRoutes}
+        />
+      </Switch>
+    </>
+  );
+});
 
-export default Routes
+export default Routes;
