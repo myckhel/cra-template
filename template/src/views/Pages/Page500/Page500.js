@@ -1,13 +1,7 @@
-import React, { Component } from 'react';
+import React from "react";
 
-class Page500 extends Component {
-  render() {
-    return (
-      <div className="app flex-row align-items-center">
-
-      </div>
-    );
-  }
+function Page500() {
+  return <div className="app flex-row align-items-center">500</div>;
 }
 
 export default Page500;

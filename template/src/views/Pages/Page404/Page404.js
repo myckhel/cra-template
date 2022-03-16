@@ -1,13 +1,7 @@
-import React, { Component } from 'react';
+import React from "react";
 
-class Page404 extends Component {
-  render() {
-    return (
-      <div className="app flex-row align-items-center">
-
-      </div>
-    );
-  }
+function Page404() {
+  return <div className="app flex-row align-items-center">404</div>;
 }
 
 export default Page404;
